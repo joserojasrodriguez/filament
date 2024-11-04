@@ -62,6 +62,8 @@ trait CanExportRecords
 
     protected bool | Closure $hasColumnMapping = true;
 
+    protected array|int|string|Closure $columns = 1;
+
     protected function setUp(): void
     {
         parent::setUp();
@@ -76,7 +78,7 @@ trait CanExportRecords
 
         $this->form(fn (ExportAction | ExportTableAction | ExportTableBulkAction $action): array => [
             ...($action->hasColumnMapping() ? [Fieldset::make(__('filament-actions::export.modal.form.columns.label'))
-                ->columns(1)
+                ->columns($this->getColumns())
                 ->inlineLabel()
                 ->schema(function () use ($action): array {
                     return array_map(
@@ -306,6 +308,13 @@ trait CanExportRecords
         return $this;
     }
 
+    public function columns(array|int|string|Closure $columns): static
+    {
+        $this->columns = $columns;
+        
+        return $this;
+    }
+
     /**
      * @return class-string<Exporter>
      */
@@ -331,6 +340,12 @@ trait CanExportRecords
     {
         return $this->evaluate($this->maxRows);
     }
+
+    public funtion getColumns(): array | int | string
+    {
+        return $this->evaluate($this->columns);
+    }
+    
 
     /**
      * @param  array<string, mixed> | Closure  $options
